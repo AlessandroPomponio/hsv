@@ -189,7 +189,7 @@ func normalize32BinsHistogram(roundType int, width, height int, bins []float64) 
 		return nil
 	}
 
-	for i := 0; i < len(bins); i++ {
+	for i := 0; i < 32; i++ {
 		bins[i] = roundFunction(bins[i] * 100 / pixels)
 	}
 
