@@ -37,3 +37,14 @@ func main() {
 	
 }
 ```
+
+## Benchmarks
+
+Benchmarks can be found in the `histogram` package and are run on the `beach_medium.jpg` image (1280x1917).
+
+```
+BenchmarkWith32Bins-8             	       5	 244802280 ns/op
+BenchmarkWith32BinsConcurrent-8   	      20	  53650080 ns/op
+BenchmarkWith64Bins-8             	       5	 250596880 ns/op
+BenchmarkWith64BinsConcurrent-8   	      20	  54100025 ns/op
+```
