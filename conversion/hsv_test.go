@@ -12,15 +12,8 @@ import (
 
 func TestRGBAToHSV(t *testing.T) {
 
-	type args struct {
-		r uint32
-		g uint32
-		b uint32
-		a uint32
-	}
 	tests := []struct {
 		name  string
-		args  args
 		wantH float64
 		wantS float64
 		wantV float64
