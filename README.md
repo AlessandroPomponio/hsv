@@ -1,5 +1,10 @@
 # go-hsv
 
+[![Build Status](https://travis-ci.org/AlessandroPomponio/hsv.svg?branch=master)](https://travis-ci.org/AlessandroPomponio/hsv)
+[![Go Report Card](https://goreportcard.com/badge/github.com/AlessandroPomponio/hsv)](https://goreportcard.com/report/github.com/AlessandroPomponio/hsv)
+[![GoDoc](https://godoc.org/github.com/AlessandroPomponio/hsv?status.svg)](https://godoc.org/github.com/AlessandroPomponio/hsv)
+
+
 A library to convert RGBA colors to HSV and create approximate color histograms, written in Go.
 
 ## Installation
