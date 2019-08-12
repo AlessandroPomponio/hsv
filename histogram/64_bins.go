@@ -8,7 +8,7 @@ import (
 	"image"
 	"math"
 
-	"gitlab.com/AlessandroPomponio/hsv/conversion"
+	"github.com/AlessandroPomponio/hsv/conversion"
 )
 
 // With64Bins returns a color histogram with 64 bins for the input image.

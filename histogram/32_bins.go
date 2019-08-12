@@ -8,7 +8,7 @@ import (
 	"image"
 	"math"
 
-	"gitlab.com/AlessandroPomponio/hsv/conversion"
+	"github.com/AlessandroPomponio/hsv/conversion"
 )
 
 const (
