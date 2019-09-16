@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package histogram provides methods to compute approximate
+// color histograms in the HSV color space.
 package histogram
 
 import (

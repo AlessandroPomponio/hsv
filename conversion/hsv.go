@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package conversion provides a way to convert a color from the
+// RGBA color space to HSV.
 package conversion
 
 import (
