@@ -7,10 +7,10 @@
 package histogram
 
 import (
+	"github.com/AlessandroPomponio/hsv/conversion"
 	"image"
 	"math"
-
-	"github.com/AlessandroPomponio/hsv/conversion"
+	"runtime"
 )
 
 const (
@@ -80,33 +80,17 @@ func With32Bins(img image.Image, roundType int) []float64 {
 func With32BinsConcurrent(img image.Image, roundType int) []float64 {
 
 	bins := make([]float64, 32)
-	binChannel := make(chan []float64)
+	cpuAmt := runtime.NumCPU()
+	binChannel := make(chan []float64, cpuAmt/2)
 
-	xBound := img.Bounds().Dx()
-	yBound := img.Bounds().Dy()
-
-	var routineAmount int
-
-	if xBound >= yBound {
-
-		routineAmount = xBound
-
-		for x := 0; x < xBound; x++ {
-			go calculate32BinsForColumn(x, yBound, img, binChannel)
-		}
-
-	} else {
-
-		routineAmount = yBound
-
-		for y := 0; y < yBound; y++ {
-			go calculate32BinsForRow(xBound, y, img, binChannel)
-		}
-
+	// Split image into NumCPU sub-images to help speed up the computation.
+	rectangles := splitInto(cpuAmt, img.Bounds())
+	for _, rectangle := range rectangles {
+		go calculate32BinsForRectangle(rectangle, img, binChannel)
 	}
 
 	// Gather the results from all goroutines and sum them.
-	for i := 0; i < routineAmount; i++ {
+	for i := 0; i < len(rectangles); i++ {
 
 		currentBins := <-binChannel
 
@@ -116,61 +100,37 @@ func With32BinsConcurrent(img image.Image, roundType int) []float64 {
 
 	}
 
-	return normalize32BinsHistogram(roundType, xBound, yBound, bins)
+	return normalize32BinsHistogram(roundType, img.Bounds().Dx(), img.Bounds().Dy(), bins)
 
 }
 
-func calculate32BinsForColumn(x, yBound int, img image.Image, outputChan chan []float64) {
+func calculate32BinsForRectangle(rectangle image.Rectangle, img image.Image, outputChan chan []float64) {
 
-	verticalBins := make([]float64, 32)
+	bins := make([]float64, 32)
+	for x := rectangle.Min.X; x <= rectangle.Max.X; x++ {
 
-	for y := 0; y < yBound; y++ {
+		for y := rectangle.Min.Y; y <= rectangle.Max.Y; y++ {
 
-		h, s, _ := conversion.RGBAToHSV(img.At(x, y).RGBA())
+			h, s, _ := conversion.RGBAToHSV(img.At(x, y).RGBA())
 
-		// hueBin in [0,7].
-		// Try to map hue in equally-sized
-		// levels by dividing it for 360/7.
-		hueBin := int(h / 51.42857142857143)
+			// hueBin in [0,7].
+			// Try to map hue in equally-sized
+			// levels by dividing it for 360/7.
+			hueBin := int(h / 51.42857142857143)
 
-		// saturationBin in [0,3]
-		// Try to map saturation in equally-sized
-		// levels by dividing it for 100/3.
-		saturationBin := int(s / 33.33333333333333)
+			// saturationBin in [0,3]
+			// Try to map saturation in equally-sized
+			// levels by dividing it for 100/3.
+			saturationBin := int(s / 33.33333333333333)
 
-		index := 4*hueBin + saturationBin
-		verticalBins[index]++
+			index := 4*hueBin + saturationBin
+			bins[index]++
 
-	}
-
-	outputChan <- verticalBins
-
-}
-
-func calculate32BinsForRow(xBound, y int, img image.Image, outputChan chan []float64) {
-
-	horizontalBins := make([]float64, 32)
-
-	for x := 0; x < xBound; x++ {
-
-		h, s, _ := conversion.RGBAToHSV(img.At(x, y).RGBA())
-
-		// hueBin in [0,7].
-		// Try to map hue in equally-sized
-		// levels by dividing it for 360/7.
-		hueBin := int(h / 51.42857142857143)
-
-		// saturationBin in [0,3]
-		// Try to map saturation in equally-sized
-		// levels by dividing it for 100/3.
-		saturationBin := int(s / 33.33333333333333)
-
-		index := 4*hueBin + saturationBin
-		horizontalBins[index]++
+		}
 
 	}
 
-	outputChan <- horizontalBins
+	outputChan <- bins
 
 }
 
